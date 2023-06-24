@@ -3,6 +3,8 @@ package ejercicios
 import (
 	"errors"
 	"fmt"
+	"os"
+	"strings"
 )
 
 // guia1
@@ -699,4 +701,280 @@ func BuscarInfiltrado1(arr []int) int {
 	}
 
 	return BuscarInfiltrado(arr[:mid])
+}
+
+func prueba() {
+	f, err := os.Create("mi archivo .txt")
+	if err != nil {
+		panic(err)
+	}
+	final := 16777215
+	for i := 0; i <= final; i++ {
+		_, err = f.WriteString(fmt.Sprintf("%06x\n", i))
+		if err != nil {
+			panic(err)
+		}
+	}
+
+}
+
+func InsertionSort(arreglo []int) []int {
+	for i := 1; i < len(arreglo); i++ {
+		actual := arreglo[i]
+		j := i - 1
+		for j >= 0 && arreglo[j] > actual {
+			arreglo[j+1] = arreglo[j]
+			i--
+		}
+		arreglo[j+1] = actual
+
+	}
+
+}
+
+// Set es un conjunto de elementos comparables
+type Set[T comparable] struct {
+	elementos linkedlist.LinkedList[T]
+}
+
+/*********Métodos*********/
+// Contains verifica si el elemento pertenece al conjunto
+// O(n)
+func (s *Set[T]) Contains(element T) bool {
+	return s.elementos.Contains(element)
+}
+
+// Add agrega un elemento al conjunto
+// Si el elemento ya pertenece al conjunto, no hace nada
+// O(n) (en el peor de los casos, ya que debe verificar
+// si el elemento ya está en el conjunto)
+func (s *Set[T]) Add(element T) {
+	if !s.Contains(element) { //O(n)
+		s.elementos.InsertAt(element, 0) //O(1)
+	}
+}
+
+// Remove elimina un elemento del conjunto
+// Si el elemento no pertenece al conjunto, no hace nada
+// O(n)
+func (s *Set[T]) Remove(element T) {
+	s.elementos.RemoveAt(s.elementos.Search(element))
+}
+
+// Size devuelve la cantidad de elementos del conjunto
+// O(1)
+func (s *Set[T]) Size() int {
+	return s.elementos.Size()
+}
+
+// String devuelve una representación en cadena del conjunto
+// O(n)
+func (s *Set[T]) String() string {
+	cadena := "Conjunto: {"
+	elementos := s.elementos.String()
+	inicio := strings.Index(elementos, "[") + 1 // busca el indice donde esta el corchete
+	fin := strings.Index(elementos, "]")        // busca el indice donde esta el corchete
+	cadena += elementos[inicio:fin]
+	cadena += "}"
+	return cadena
+}
+
+// Values devuelve un arreglo con los elementos del conjunto
+func (s *Set[T]) Values() []T {
+	var values []T
+	for i := 0; i < s.Size(); i++ {
+		values = append(values, s.elementos.Get(i))
+	}
+	return values
+}
+
+/*********Operaciones sobre conjuntos *********/
+
+// NewSet crea un nuevo conjunto con los elementos que recibe como parámetros
+// Si no recibe ningún elemento, crea un conjunto vacío
+// O(n) donde n es la cantidad de elementos
+
+// Dada la implementación de Set vista en clase (implementado sobre una lista enlazada simple) que tiene los métodos:
+// Contains, Add, Remove, Size, String y Values y soporta las siguientes operaciones que en todos los casos devuelven un conjunto nuevo:
+// NewSet, Union, Intersection, Difference, Subset y Equal.
+//
+//	Se pide reescribir la operación Union para que reciba como parámetro un número indefinido de conjuntos y devuelva la Union de todos ellos.
+func NewSet[T comparable](elementos ...T) *Set[T] {
+	conjunto := &Set[T]{*linkedlist.NewLinkedList[T]()}
+	for _, elemento := range elementos {
+		conjunto.Add(elemento)
+	}
+	return conjunto
+}
+
+// Union devuelve un nuevo conjunto con la unión de los conjuntos recibidos
+// O(n*m), donde n y m son los tamaños de los conjuntos s1 y s2 respectivamente
+func Union[T comparable](s1, s2 *Set[T]) *Set[T] {
+	result := NewSet[T]()
+	for i := 0; i < s1.Size(); i++ {
+		result.Add(s1.elementos.Get(i))
+	}
+	for i := 0; i < s2.Size(); i++ {
+		result.Add(s2.elementos.Get(i))
+	}
+	return result
+}
+
+// Intersection devuelve un nuevo conjunto con la intersección de los conjuntos
+// recibidos
+// O(n*m) donde n y m son los tamaños de los conjuntos s1 y s2 respectivamente
+func Intersection[T comparable](s1, s2 *Set[T]) *Set[T] {
+	result := NewSet[T]()
+	for i := 0; i < s1.Size(); i++ {
+		elemento := s1.elementos.Get(i)
+		if s2.Contains(elemento) {
+			result.Add(elemento)
+		}
+	}
+	return result
+}
+
+// Difference devuelve un nuevo conjunto con la diferencia de los conjuntos
+// recibidos
+// La diferencia entre s1 y s2, son todos los elementos de s1 que no están en s2
+// O(n*m) donde n y m son los tamaños de los conjuntos s1 y s2 respectivamente
+func Difference[T comparable](s1, s2 *Set[T]) *Set[T] {
+	result := NewSet[T]()
+	for i := 0; i < s1.Size(); i++ {
+		elemento := s1.elementos.Get(i)
+		if !s2.Contains(elemento) {
+			result.Add(elemento)
+		}
+	}
+	return result
+}
+
+// Subset verifica si el conjunto s2 es subconjunto del conjunto s1
+// O(n*m) donde n y m son los tamaños de los conjuntos s1 y s2 respectivamente
+func Subset[T comparable](s1, s2 *Set[T]) bool {
+	for i := 0; i < s2.Size(); i++ {
+		if !s1.Contains(s2.elementos.Get(i)) { //valida elemento por elemento si existe en el conjunto1 sino, retorna falso
+			return false
+		}
+	}
+	return true
+}
+
+// Equal verifica si los conjuntos recibidos son iguales
+// O(n^2) donde n es el tamaño de los conjuntos s1 y s2
+func Equal[T comparable](s1, s2 *Set[T]) bool {
+	return Subset(s1, s2) && Subset(s2, s1)
+}
+
+// PARCIAL PUNTO 1
+
+func UnionParcial[T comparable](Conjuntos ...*Set[T]) *Set[T] {
+	result := NewSet[T]()
+	for _, conjunto := range Conjuntos {
+		valores := conjunto.Values()
+		for _, valor := range valores {
+			result.Add(valor)
+		}
+	}
+
+	return result
+}
+
+// Diccionario es un conjunto de entradas formadas por pares únicos (clave: valor)
+type Dictionary[K comparable, V any] struct {
+	mapa map[K]V
+}
+
+/*********Métodos*********/
+// Crea un diccionario
+// O(1)
+func NewDictionary[K comparable, V any]() Dictionary[K, V] {
+	dict := Dictionary[K, V]{mapa: make(map[K]V)}
+	return dict
+}
+
+// Agrega una nueva entrada al diccionario, si existe pisa el valor para esa entrada
+// O(1)
+func (dict *Dictionary[K, V]) Put(key K, val V) {
+	dict.mapa[key] = val
+}
+
+// Remueve una entrada del diccionario
+// O(1)
+func (dict *Dictionary[K, V]) Remove(key K) bool {
+	var exists bool
+	_, exists = dict.mapa[key]
+	if exists {
+		delete(dict.mapa, key)
+	}
+	return exists
+}
+
+// Verifica si existe una entrada para ese valor de clave
+// O(1)
+func (dict *Dictionary[K, V]) Contains(key K) bool {
+	var exists bool
+	_, exists = dict.mapa[key]
+	return exists
+}
+
+// Devuelve el valor para esa clave
+// O(1)
+func (dict *Dictionary[K, V]) Get(key K) V {
+	return dict.mapa[key]
+}
+
+// Devuelve la cantidad de entradas del diccionario
+// O(1)
+func (dict *Dictionary[K, V]) Size() int {
+	return len(dict.mapa)
+}
+
+// Devuelve un arreglo con las claves del diccionario
+// O(n)
+func (dict *Dictionary[K, V]) GetKeys() []K {
+	var dictKeys []K
+	dictKeys = []K{}
+	var key K
+	for key = range dict.mapa {
+		dictKeys = append(dictKeys, key)
+	}
+	return dictKeys
+}
+
+// Devuelve un arreglo con las valores del diccionario
+// O(n)
+func (dict *Dictionary[K, V]) GetValues() []V {
+	var dictValues []V
+	dictValues = []V{}
+	var key K
+	for key = range dict.mapa {
+		dictValues = append(dictValues, dict.mapa[key])
+	}
+	return dictValues
+}
+
+// PARCIAL PUNTO 2
+
+// Escribir una función que recibe un diccionario cuyas claves son los nombres de los alumnos y
+// como valor una lista con los días que asistieron a clase. Debe devolver un diccionario con clave fecha
+// y valor la lista de alumnos que asistieron en dicha fecha.  Por ejemplo, si la entrada es
+
+// {"Ana": [ "Mie 10", "Vie 12"], "Luz": [ "Vie 12",  "Mie 17"],  "Pedro": ["Mie  10", "Mie 17"]},
+// debe devolver  {“Mie 10”: [“Ana", "Pedro"]), “Vie 12”: [“Ana", "Luz”], “Mie 17”: [“Luz”, "Pedro"]}
+
+func EjercicioDiccionario(entrada Dictionary[string, []string]) Dictionary[string, []string] {
+	alumnos := entrada.GetKeys()
+	aux := NewDictionary[string, []string]()
+	for _, alumno := range alumnos {
+		dias := entrada[alumno]
+		for _, dia := range dias {
+			if !aux.Contains(dia) {
+				aux.Put(dia, []string{})
+			}
+			aux[dia] = append(aux[dia], alumno)
+		}
+	}
+	return aux
+
 }

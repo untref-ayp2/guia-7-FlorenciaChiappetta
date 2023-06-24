@@ -4,14 +4,29 @@ func main() {
 
 }
 
-func TransformarAPila(q1 *Queue3) Pila4 {
-	var p Pila4
-	if q1.IsEmpty() {
-		return p
-	}
-	elemento := q1.Dequeue()
-	p.Push(elemento)
+func EncontrarMaximo(numeros...int)int{
 
+	var pila Pila4
+	for _,valores := range numeros{
+	pila.Push(valores)
+	
+	if Pila.Top() <= valores {
+		pila.Push(valores)
+	}
+	
+	return pila.Top()
+}
+}
+
+func TransformarAPila(q1 Queue3) (s1 Pila4) {
+	elemento := q1.Dequeue()
+	if !q1.IsEmpty() {
+	TransformarAPila(q1)
+	}
+	
+	s1.Push(elemento)
+
+	return s1
 }
 
 type Pila4 struct {
@@ -35,6 +50,11 @@ func (q *Queue3) Dequeue() int {
 	q.Cola = q.Cola[1:len(q.Cola)]
 	return retorno
 }
+
+func (q *Queue3) Enqueue(value int) {
+	q.Cola = append(q.Cola, value)
+}
+
 
 func (q *Queue3) IsEmpty() bool {
 

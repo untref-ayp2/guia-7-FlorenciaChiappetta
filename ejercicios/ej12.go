@@ -2,11 +2,14 @@ package ejercicios
 
 // Escriba un método recursivo que calcule Fibonacci de n.
 func Fibonacci(numero int) int {
-	if numero == 0 {
-		return 0
-	}
-	if numero == 1 {
-		return 1
+	// if numero == 0 {
+	// 	return 0
+	// }
+	// if numero == 1 {
+	// 	return 1
+	// }
+	if numero < 2 {
+		return numero
 	}
 	return Fibonacci(numero-1) + Fibonacci(numero-2)
 }
